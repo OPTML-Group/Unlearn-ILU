@@ -1,0 +1,40 @@
+{
+    "overall": {
+        "model_name": "locuslab/tofu_ft_llama2-7b",
+        "logger": "json",
+        "cache_dir": "./.cache",
+        "seed": 0
+    },
+    "unlearn": {
+        "unlearn_method": "GA+FT",
+        "num_epochs": 5,
+        "lr": 7e-06,
+        "weight_decay": 0.1,
+        "gradient_accumulation_steps": 4,
+        "mask_path": "./mask/tofu_0.95.pt",
+        "task_name": "tofu",
+        "sophia": false,
+        "p": 0.95,
+        "q": 0.95,
+        "resume_path": null,
+        "max_steps": -1,
+        "use_lora": false,
+        "mu": 1e-06,
+        "GA+FT": {
+            "gamma": 1.0
+        }
+    },
+    "dataset": {
+        "forget_dataset_name": "Tofu_forget10",
+        "retain_dataset_name": "Tofu_retain90",
+        "dataset_seed": 1000,
+        "forget_ratio": 400.0,
+        "self_retain": false,
+        "batch_size": 1
+    },
+    "logger": {
+        "json": {
+            "root": "files/results/unlearn_tofu/GradDiff+WAGLE"
+        }
+    }
+}

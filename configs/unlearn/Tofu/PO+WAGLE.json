@@ -1,0 +1,40 @@
+{
+    "overall": {
+        "model_name": "locuslab/tofu_ft_llama2-7b",
+        "logger": "json",
+        "cache_dir": "./.cache",
+        "seed": 0
+    },
+    "unlearn": {
+        "unlearn_method": "CL+FT",
+        "num_epochs": 5,
+        "lr": 2e-05,
+        "weight_decay": 0.1,
+        "gradient_accumulation_steps": 4,
+        "mask_path": "./mask/tofu_0.8.pt",
+        "task_name": "tofu",
+        "sophia": false,
+        "p": 0.8,
+        "q": 0.8,
+        "resume_path": null,
+        "max_steps": -1,
+        "use_lora": false,
+        "mu": 1e-06,
+        "CL+FT": {
+            "gamma": 1.0
+        }
+    },
+    "dataset": {
+        "forget_dataset_name": "Tofu_forget10",
+        "retain_dataset_name": "Tofu_retain90",
+        "dataset_seed": 1000,
+        "forget_ratio": 400.0,
+        "self_retain": false,
+        "batch_size": 1
+    },
+    "logger": {
+        "json": {
+            "root": "files/results/unlearn_tofu/WAGLE+PO"
+        }
+    }
+}

@@ -1,10 +1,8 @@
 <div align='center'>
  
-# WAGLE: Strategic Weight Attribution for Effective and Modular Unlearning in Large Language Models
+# Invariance Makes LLM Unlearning Resilient Even to Unanticipated Downstream Fine-Tuning
 
-[![preprint](https://img.shields.io/badge/arXiv-2410.17509-B31B1B)](https://arxiv.org/pdf/2410.17509)
 
-[![Venue:NeurIPS 2024](https://img.shields.io/badge/Venue-NeurIPS%202024-blue)](https://neurips.cc/Conferences/2024)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue)](https://github.com/OPTML-Group/WAGLE?tab=MIT-1-ov-file)
 [![GitHub top language](https://img.shields.io/github/languages/top/OPTML-Group/WAGLE)](https://github.com/OPTML-Group/WAGLE)
 [![GitHub repo size](https://img.shields.io/github/repo-size/OPTML-Group/WAGLE)](https://github.com/OPTML-Group/WAGLE)
@@ -12,11 +10,13 @@
 
 </div>
 
-This is the official code repository for the paper [WAGLE: Strategic Weight Attribution for Effective and Modular Unlearning in Large Language Models](https://arxiv.org/pdf/2410.17509).
+This is the official code repository for the paper [Invariance Makes LLM Unlearning Resilient Even to Unanticipated Downstream Fine-Tuning](https://arxiv.org/pdf/2410.17509).
 
 ## Abstract
 
-The need for effective unlearning mechanisms in large language models (LLMs) is increasingly urgent, driven by the necessity to adhere to data regulations and foster ethical generative AI practices. LLM unlearning is designed to reduce the impact of undesirable data influences and associated model capabilities without diminishing the utility of the model if unrelated to the information being forgotten. Despite growing interest, much of the existing research has focused on varied unlearning method designs to boost effectiveness and efficiency. However, the inherent relationship between model weights and LLM unlearning has not been extensively examined. In this paper, we systematically explore how model weights interact with unlearning processes in LLMs and we design the weight attribution-guided LLM unlearning method, WAGLE, which unveils the interconnections between 'influence' of weights and 'influence' of data to forget and retain in LLM generation. By strategically guiding the LLM unlearning across different types of unlearning methods and tasks, WAGLE can erase the undesired content, while maintaining the performance of the original tasks. We refer to the weight attribution-guided LLM unlearning method as WAGLE, which unveils the interconnections between 'influence' of weights and 'influence' of data to forget and retain in LLM generation. Our extensive experiments show that WAGLE boosts unlearning performance across a range of LLM unlearning methods such as gradient difference and (negative) preference optimization, applications such as fictitious unlearning (TOFU benchmark), malicious use prevention (WMDP benchmark), and copyrighted information removal, and models including Zephyr-7b-beta and Llama2-7b. To the best of our knowledge, our work offers the first principled method for attributing and pinpointing the influential weights in enhancing LLM unlearning. It stands in contrast to previous methods that lack weight attribution and simpler weight attribution techniques.
+Machine unlearning presents a promising approach to mitigating privacy and safety concerns in large language models (LLMs) by enabling the selective removal of targeted data or knowledge while preserving model utility. However, existing unlearning methods remain over-sensitive to downstream fine-tuning, which can rapidly recover what is supposed to be unlearned information even when the fine-tuning task is entirely {unrelated} to the unlearning objective.
+To enhance robustness, we introduce the concept of `invariance' into unlearning for the first time from the perspective of invariant risk minimization (IRM), a principle for environment-agnostic training. By leveraging IRM, we develop a new invariance-regularized LLM unlearning framework, termed invariant LLM unlearning (ILU). 
+We show that the proposed invariance regularization, even using only a single fine-tuning dataset during ILU training, can enable unlearning robustness to generalize effectively across diverse and new fine-tuning tasks at test time. A task vector analysis is also provided to further elucidate the rationale behind ILU's effectiveness. Extensive experiments on the WMDP benchmark, which focuses on removing an LLM's hazardous knowledge generation capabilities, reveal that ILU significantly outperforms state-of-the-art unlearning methods, including negative preference optimization (NPO) and representation misdirection for unlearning (RMU). Notably, ILU achieves superior unlearning robustness across diverse downstream fine-tuning scenarios (e.g., math, paraphrase detection, and sentiment analysis) while preserving the fine-tuning performance.
 
 <!-- <table align="center">
   <tr>
@@ -32,29 +32,23 @@ The need for effective unlearning mechanisms in large language models (LLMs) is 
 
 You can install the required dependencies using the following command:
 ```
-conda create -n WAGLE python=3.9
-conda activate WAGLE
+conda create -n ILU python=3.9
+conda activate ILU
 conda install pytorch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 pytorch-cuda=11.8 -c pytorch -c nvidia
 pip install datasets wandb transformers==4.37.2 sentencepiece sentence-transformers==2.6.1
-pip install git+https://github.com/jinghanjia/fastargs  
+pip install git+https://github.com/changsheng/fastargs  
 pip install terminaltables sacrebleu rouge_score matplotlib seaborn scikit-learn
 cd lm-evaluation-harness
 pip install -e .
 ```
 
-## WMDP Unlearned Models
-Please feel free to use the following models for your research:
-
-WAGLE+GradDiff: [🤗 flyingbugs/WMDP_GradDiff_WAGLE_Zephyr_7B](https://huggingface.co/flyingbugs/WMDP_GradDiff_WAGLE_Zephyr_7B)
-
-WAGLE+NPO: [🤗 flyingbugs/WMDP_NPO_WAGLE_Zephyr_7B](https://huggingface.co/flyingbugs/WMDP_NPO_WAGLE_Zephyr_7B)
 
 
 ## Code structure
 
 ```
 -- configs/: Contains the configuration files for the experiments.
-    -- Different folders for different experiments (Tofu, WMDP, etc.)
+    -- Different folders for different experiments (MUSE, WMDP, etc.)
 -- files/: 
     -- data/: Contains the data files necessary for the experiments.
     -- results/: the log and results of experiments will stored in this directory.
@@ -82,15 +76,3 @@ python src/exec/unlearn_model.py --config_file configs/{unlearn_task}/{unlearn_m
 ```
 
 
-<!---## Cite This Work
-```
-@misc{jia2024waglestrategicweightattribution,
-      title={WAGLE: Strategic Weight Attribution for Effective and Modular Unlearning in Large Language Models}, 
-      author={Jinghan Jia and Jiancheng Liu and Yihua Zhang and Parikshit Ram and Nathalie Baracaldo and Sijia Liu},
-      year={2024},
-      eprint={2410.17509},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2410.17509}, 
-}
-```!--->

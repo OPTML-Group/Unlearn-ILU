@@ -1,6 +1,6 @@
 <div align='center'>
  
-# Invariance Makes LLM Unlearning Resilient Even to Unanticipated Downstream Fine-Tuning
+# Reasoning Model Unlearning: Forgetting Traces, Not Just Answers,  While Preserving Reasoning Skills
 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue)](https://github.com/OPTML-Group/WAGLE?tab=MIT-1-ov-file)
@@ -10,13 +10,13 @@
 
 </div>
 
-This is the official code repository for the paper [Invariance Makes LLM Unlearning Resilient Even to Unanticipated Downstream Fine-Tuning](https://arxiv.org/pdf/2410.17509).
+This is the official code repository for the paper [Reasoning Model Unlearning: Forgetting Traces, Not Just Answers,  While Preserving Reasoning Skills]().
 
 ## Abstract
 
-Machine unlearning presents a promising approach to mitigating privacy and safety concerns in large language models (LLMs) by enabling the selective removal of targeted data or knowledge while preserving model utility. However, existing unlearning methods remain over-sensitive to downstream fine-tuning, which can rapidly recover what is supposed to be unlearned information even when the fine-tuning task is entirely {unrelated} to the unlearning objective.
-To enhance robustness, we introduce the concept of `invariance' into unlearning for the first time from the perspective of invariant risk minimization (IRM), a principle for environment-agnostic training. By leveraging IRM, we develop a new invariance-regularized LLM unlearning framework, termed invariant LLM unlearning (ILU). 
-We show that the proposed invariance regularization, even using only a single fine-tuning dataset during ILU training, can enable unlearning robustness to generalize effectively across diverse and new fine-tuning tasks at test time. A task vector analysis is also provided to further elucidate the rationale behind ILU's effectiveness. Extensive experiments on the WMDP benchmark, which focuses on removing an LLM's hazardous knowledge generation capabilities, reveal that ILU significantly outperforms state-of-the-art unlearning methods, including negative preference optimization (NPO) and representation misdirection for unlearning (RMU). Notably, ILU achieves superior unlearning robustness across diverse downstream fine-tuning scenarios (e.g., math, paraphrase detection, and sentiment analysis) while preserving the fine-tuning performance.
+Recent advances in large reasoning models (LRMs) have enabled strong chain-of-thought (CoT) generation through test-time computation. While these multi-step reasoning capabilities represent a major milestone in language model performance, they also introduce new safety risks. In this work, we present the first systematic study to revisit the problem of \textit{machine unlearning in the context of LRMs}. Machine unlearning refers to the process of removing the influence of sensitive, harmful, or undesired data or knowledge from a trained model without full retraining. We show that conventional unlearning algorithms, originally designed for non-reasoning models, are inadequate for LRMs. In particular, even when final answers are successfully erased, sensitive information often persists within the intermediate reasoning steps, \textit{i.e.}, CoT trajectories.
+ To address this challenge, we extend conventional unlearning and propose \underline{R}easoning-aware \underline{R}epresentation \underline{M}isdirection for \underline{U}nlearning (\textbf{\ours{}}), a novel method that effectively suppresses sensitive reasoning traces and prevents the generation of associated final answers, while preserving the model’s reasoning ability.
+ Our experiments demonstrate that {\ours} significantly reduces sensitive information leakage within reasoning traces and achieves strong performance across both safety and reasoning benchmarks, evaluated on state-of-the-art models such as DeepSeek-R1-Distill-LLaMA-8B and DeepSeek-R1-Distill-Qwen-14B.
 
 <!-- <table align="center">
   <tr>

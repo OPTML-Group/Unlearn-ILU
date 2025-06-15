@@ -1,6 +1,6 @@
 <div align='center'>
- 
-# Reasoning Model Unlearning: Forgetting Traces, Not Just Answers,  While Preserving Reasoning Skills
+
+# Invariance Makes LLM Unlearning Resilient Even to Unanticipated Downstream Fine-Tuning
 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue)](https://github.com/OPTML-Group/WAGLE?tab=MIT-1-ov-file)
@@ -10,13 +10,14 @@
 
 </div>
 
-This is the official code repository for the paper [Reasoning Model Unlearning: Forgetting Traces, Not Just Answers,  While Preserving Reasoning Skills]().
+
+This is the official code repository for the paper [Invariance Makes LLM Unlearning Resilient Even to Unanticipated Downstream Fine-Tuning](https://arxiv.org/pdf/2410.17509).
 
 ## Abstract
 
-Recent advances in large reasoning models (LRMs) have enabled strong chain-of-thought (CoT) generation through test-time computation. While these multi-step reasoning capabilities represent a major milestone in language model performance, they also introduce new safety risks. In this work, we present the first systematic study to revisit the problem of machine unlearning in the context of LRMs. Machine unlearning refers to the process of removing the influence of sensitive, harmful, or undesired data or knowledge from a trained model without full retraining. We show that conventional unlearning algorithms, originally designed for non-reasoning models, are inadequate for LRMs. In particular, even when final answers are successfully erased, sensitive information often persists within the intermediate reasoning steps, i.e., CoT trajectories.
- To address this challenge, we extend conventional unlearning and propose **R**easoning-aware **R**epresentation **M** isdirection for **U** unlearning ($R^2MU$), a novel method that effectively suppresses sensitive reasoning traces and prevents the generation of associated final answers, while preserving the model’s reasoning ability.
- Our experiments demonstrate that $R^2MU$ significantly reduces sensitive information leakage within reasoning traces and achieves strong performance across both safety and reasoning benchmarks, evaluated on state-of-the-art models such as DeepSeek-R1-Distill-LLaMA-8B and DeepSeek-R1-Distill-Qwen-14B.
+Machine unlearning presents a promising approach to mitigating privacy and safety concerns in large language models (LLMs) by enabling the selective removal of targeted data or knowledge while preserving model utility. However, existing unlearning methods remain over-sensitive to downstream fine-tuning, which can rapidly recover what is supposed to be unlearned information even when the fine-tuning task is entirely {unrelated} to the unlearning objective.
+To enhance robustness, we introduce the concept of `invariance' into unlearning for the first time from the perspective of invariant risk minimization (IRM), a principle for environment-agnostic training. By leveraging IRM, we develop a new invariance-regularized LLM unlearning framework, termed invariant LLM unlearning (ILU). Add commentMore actions
+We show that the proposed invariance regularization, even using only a single fine-tuning dataset during ILU training, can enable unlearning robustness to generalize effectively across diverse and new fine-tuning tasks at test time. A task vector analysis is also provided to further elucidate the rationale behind ILU's effectiveness. Extensive experiments on the WMDP benchmark, which focuses on removing an LLM's hazardous knowledge generation capabilities, reveal that ILU significantly outperforms state-of-the-art unlearning methods, including negative preference optimization (NPO) and representation misdirection for unlearning (RMU). Notably, ILU achieves superior unlearning robustness across diverse downstream fine-tuning scenarios (e.g., math, paraphrase detection, and sentiment analysis) while preserving the fine-tuning performance.
 
 <!-- <table align="center">
   <tr>
@@ -32,8 +33,8 @@ Recent advances in large reasoning models (LRMs) have enabled strong chain-of-th
 
 You can install the required dependencies using the following command:
 ```
-conda create -n R2MU python=3.9
-conda activate R2MU
+conda create -n ILU python=3.9
+conda activate ILU
 conda install pytorch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 pytorch-cuda=11.8 -c pytorch -c nvidia
 pip install datasets wandb transformers==4.37.2 sentencepiece sentence-transformers==2.6.1
 pip install git+https://github.com/changsheng/fastargs  
@@ -44,56 +45,36 @@ pip install -e .
 
 ## Running the experiments
 
+## Code structure
+
 # WMDP
 you can run the following command to run the experiments:
 ```
-ALPHA="1.7,1.7"
-LR="7.5e-5"
-DATA="500"
-FILE="v11"
-NAME="no_unlearn"
-assist_loss="1"
-
-MODEL_NAME="deepseek-ai/DeepSeek-R1-Distill-Llama-8B"
-OUTPUT_NAME="${FILE}_alpha${ALPHA//,/x}_lr${LR}_data${DATA}_${NAME}_assist_loss_${assist_loss}"
-OUTPUT_DIR="models/${OUTPUT_NAME}"
-LOG_FILE="${OUTPUT_NAME}.log"
-
-nohup bash -c "
-CUDA_VISIBLE_DEVICES=6,7 python3 -m unlearn_r2mu \
-  --model_name_or_path ${MODEL_NAME} \
-  --max_num_batches ${DATA} \
-  --batch_size 4 \
-  --retain_corpora wikitext \
-  --forget_corpora original \
-  --steering_coeffs 6.5,6.5 \
-  --alpha ${ALPHA} \
-  --lr ${LR} \
-  --assist_loss ${assist_loss} \
-  --seed 42 \
-  --output_dir ${OUTPUT_DIR} \
-  --generated_path generated_all.jsonl \
-  --raw_path bio_remove_dataset.jsonl \
-  --max_gen_tokens 100 \
-  --verbose
-" > ${LOG_FILE} 2>&1 &
+-- configs/: Contains the configuration files for the experiments.
+    -- Different folders for different experiments (MUSE, WMDP, etc.)
+-- files/: 
+    -- data/: Contains the data files necessary for the experiments.
+    -- results/: the log and results of experiments will stored in this directory.
+-- lm-evaluation-harness: official repository for the evaluation of LLMs from      
+  https://github.com/EleutherAI/lm-evaluation-harness.
+-- src/: Contains the source code for the experiments.
+    -- dataset/: Contains the data processing and dataloader creation codes.
+    -- model/: Contains the main unlearning class which will conduct load model, 
+      unlearn,evaluation.
+    -- optim/: Contains the optimizer code.
+    -- metrics/: Contains the evaluation code.
+    -- loggers/: Contains the logger code.
+    -- unlearn/: Contains different unlearning methods' code also mask generation code.
+    -- exec/:
+        -- Fine_tune_hp.py: Code for finetuning on harry potter books.
+        -- unlearn_model.py: The main file to run the unlearning experiments.
 ```
-# STAR-1
-
-you can run the following command to run the experiments:
-```
-CUDA_VISIBLE_DEVICES=0,1 python3 -m rmu.unlearn_safe
- --model_name_or_path deepseek-ai/DeepSeek-R1-Distill-Llama-8B
- --max_num_batches 300
- --batch_size 4
- --retain_corpora wikitext
- --forget_corpora safety
- --steering_coeffs 6.5,6.5
- --alpha 20,20
- --lr 1e-06
- --seed 42
- --output_dir models/reasoning_safe_alpha20_lr1p0e-06
- --verbose > logs/reasoning_safe_alpha20_lr1p0e-06.log 2>&1 &
+## Running the experimentsAdd commentMore actions
 
 ```
+python src/exec/unlearn_model.py --config_file configs/{unlearn_task}/{unlearn_method}.json --unlearn.mask_path mask/{unlearn_task}_{ratio}.pt {other_args}
+```
+
+
+Code is on going ... Any question please contact wangc168@msu.edu
 
